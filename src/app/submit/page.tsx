@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
 import ReviewSubmitForm from '@/components/ReviewSubmitForm'
 import Container from '@/components/Container'
@@ -9,16 +10,21 @@ export default async function SubmitPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/signin?redirectTo=/submit')
 
-  const [{ data: profileData }, { data: locationsData }, { data: axesData }] = await Promise.all([
+  const [{ data: profileData }, { data: locationsData }, { data: axesData }, { data: existingReviewsData }] = await Promise.all([
     supabase.from('profiles').select('food_category, onboarding_done').eq('id', user.id).single(),
     supabase.from('locations').select('*').order('name'),
     supabase.from('rubric_axes').select('*').eq('user_id', user.id).order('position'),
+    supabase.from('reviews').select('id, location_id').eq('user_id', user.id),
   ])
 
   if (!profileData?.onboarding_done) redirect('/onboarding')
 
   const axes = (axesData ?? []) as RubricAxis[]
   const foodCategory = profileData?.food_category ?? 'your food'
+  const reviewedLocationIds = new Set((existingReviewsData ?? []).map((r: { location_id: string }) => r.location_id))
+  const existingReviewByLocation = Object.fromEntries(
+    (existingReviewsData ?? []).map((r: { id: string; location_id: string }) => [r.location_id, r.id])
+  )
 
   return (
     <main className="flex-1">
@@ -33,6 +39,8 @@ export default async function SubmitPage() {
           locations={locationsData ?? []}
           axes={axes}
           foodCategory={foodCategory}
+          reviewedLocationIds={reviewedLocationIds}
+          existingReviewByLocation={existingReviewByLocation}
         />
       </Container>
     </main>

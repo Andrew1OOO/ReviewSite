@@ -7,6 +7,7 @@ import Container from '@/components/Container'
 import ProfileForm from '@/components/ProfileForm'
 import AvatarUpload from '@/components/AvatarUpload'
 import ReviewMap from '@/components/ReviewMap'
+import RelativeTime from '@/components/RelativeTime'
 import type { ReviewMapPin } from '@/components/ReviewMap'
 import type { Review, Profile, RubricAxis } from '@/lib/types'
 
@@ -119,7 +120,10 @@ export default async function ProfilePage() {
         {/* Map */}
         {reviews.length > 0 && (
           <section>
-            <h2 className="font-serif text-xl mb-4">Your map</h2>
+            <div className="flex items-baseline gap-3 mb-4">
+              <h2 className="font-serif text-xl">Your map</h2>
+              <span className="text-sm text-text-muted">{reviews.length} {reviews.length === 1 ? 'spot' : 'spots'} reviewed</span>
+            </div>
             <ReviewMap pins={mapPins} />
           </section>
         )}
@@ -140,9 +144,7 @@ export default async function ProfilePage() {
                     <Link href={`/locations/${review.location_id}`} className="text-sm font-medium text-text hover:text-accent transition-colors truncate block">
                       {dishNameById[review.location_id] ?? 'Unknown location'}
                     </Link>
-                    <p className="text-xs text-text-muted mt-0.5">
-                      {new Date(review.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                    </p>
+                    <RelativeTime date={review.created_at} className="text-xs text-text-muted mt-0.5 block" />
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="score-display text-xl">{review.composite?.toFixed(1) ?? '—'}</span>

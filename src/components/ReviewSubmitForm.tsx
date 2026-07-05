@@ -47,9 +47,11 @@ interface ReviewSubmitFormProps {
   locations: Location[]
   axes: RubricAxis[]
   foodCategory: string
+  reviewedLocationIds: Set<string>
+  existingReviewByLocation: Record<string, string>
 }
 
-export default function ReviewSubmitForm({ locations, axes, foodCategory }: ReviewSubmitFormProps) {
+export default function ReviewSubmitForm({ locations, axes, foodCategory, reviewedLocationIds, existingReviewByLocation }: ReviewSubmitFormProps) {
   const [locationMode, setLocationMode] = useState<'existing' | 'new'>(
     locations.length > 0 ? 'existing' : 'new'
   )
@@ -129,13 +131,27 @@ export default function ReviewSubmitForm({ locations, axes, foodCategory }: Revi
           )}
 
           {locationMode === 'existing' ? (
-            <select value={selectedLocationId} onChange={(e) => setSelectedLocationId(e.target.value)}
-              className={inputClass}>
-              <option value="">Choose a spot…</option>
-              {locations.map((loc) => (
-                <option key={loc.id} value={loc.id}>{loc.name} — {loc.city}</option>
-              ))}
-            </select>
+            <div className="space-y-3">
+              <select value={selectedLocationId} onChange={(e) => setSelectedLocationId(e.target.value)}
+                className={inputClass}>
+                <option value="">Choose a spot…</option>
+                {locations.map((loc) => (
+                  <option key={loc.id} value={loc.id}>{loc.name} — {loc.city}</option>
+                ))}
+              </select>
+              {selectedLocationId && reviewedLocationIds.has(selectedLocationId) && (
+                <div className="flex items-center gap-3 p-3 bg-gold-soft border border-gold/30 rounded-lg text-sm">
+                  <span className="text-gold">⚠</span>
+                  <span className="text-text">You&apos;ve already reviewed this spot.</span>
+                  <a
+                    href={`/locations/${selectedLocationId}/review/edit?reviewId=${existingReviewByLocation[selectedLocationId]}`}
+                    className="ml-auto text-accent hover:underline shrink-0 font-medium"
+                  >
+                    Edit it →
+                  </a>
+                </div>
+              )}
+            </div>
           ) : (
             <div className="space-y-4">
               <div>

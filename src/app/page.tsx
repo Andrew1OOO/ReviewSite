@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import Container from '@/components/Container'
 import ScoreBadge from '@/components/ScoreBadge'
 import Pagination from '@/components/Pagination'
+import RelativeTime from '@/components/RelativeTime'
 import type { LocationScore, Review, Profile } from '@/lib/types'
 
 export const revalidate = 60
@@ -96,6 +97,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                         {location.location_city}
                         {profile?.food_category && <span> · {profile.food_category}</span>}
                         {profile?.display_name && <span> · {profile.display_name}</span>}
+                        {' · '}<RelativeTime date={review.created_at} />
                       </p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0">
