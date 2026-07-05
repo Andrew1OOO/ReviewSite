@@ -180,6 +180,7 @@ export default async function LocationPage({ params }: PageProps) {
                     isOwner={user?.id === review.user_id}
                     dishId={id}
                     reviewerName={profile?.display_name ?? 'Anonymous'}
+                    reviewerUserId={review.user_id}
                     foodCategory={profile?.food_category ?? null}
                   />
                 )

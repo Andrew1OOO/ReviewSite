@@ -103,9 +103,17 @@ export default async function HomePage({ searchParams }: PageProps) {
                       <p className="font-medium text-text text-sm leading-snug group-hover:text-accent transition-colors line-clamp-2">
                         {location.location_name}
                       </p>
-                      <p className="text-xs text-text-muted mt-1 truncate">
-                        {profile?.display_name ?? location.location_city}
-                      </p>
+                      {profile?.display_name ? (
+                        <Link
+                          href={`/profile/${review.user_id}`}
+                          className="text-xs text-text-muted mt-1 truncate block hover:text-accent transition-colors"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {profile.display_name}
+                        </Link>
+                      ) : (
+                        <p className="text-xs text-text-muted mt-1 truncate">{location.location_city}</p>
+                      )}
                       <RelativeTime date={review.created_at} className="text-xs text-text-muted/70" />
                     </div>
                   </Link>

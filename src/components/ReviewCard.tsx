@@ -16,6 +16,7 @@ interface ReviewCardProps {
   isOwner: boolean
   dishId: string
   reviewerName: string
+  reviewerUserId: string
   foodCategory: string | null
 }
 
@@ -27,6 +28,7 @@ export default function ReviewCard({
   isOwner,
   dishId,
   reviewerName,
+  reviewerUserId,
   foodCategory,
 }: ReviewCardProps) {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null)
@@ -43,7 +45,13 @@ export default function ReviewCard({
         <div>
           <span className="score-display text-3xl">{review.composite?.toFixed(1) ?? '—'}</span>
           <p className="text-xs text-text-muted mt-0.5">
-            <span className="font-medium text-text">{reviewerName}</span>
+            <Link
+              href={`/profile/${reviewerUserId}`}
+              className="font-medium text-text hover:text-accent transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {reviewerName}
+            </Link>
             {foodCategory && <span> · {foodCategory}</span>}
           </p>
         </div>
