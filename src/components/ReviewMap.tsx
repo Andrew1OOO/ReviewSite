@@ -27,17 +27,17 @@ interface ReviewMapProps {
 
 function tierColor(composite: number | null) {
   if (composite === null) return { bg: '#6E675A', border: '#4E4839' }
-  if (composite >= 8)     return { bg: '#2F7D4E', border: '#1f5c39' }
-  if (composite >= 6)     return { bg: '#2A6BB0', border: '#1d4f85' }
-  if (composite >= 4)     return { bg: '#C68A1A', border: '#9a6b14' }
+  if (composite >= 90)    return { bg: '#2F7D4E', border: '#1f5c39' }
+  if (composite >= 75)    return { bg: '#2A6BB0', border: '#1d4f85' }
+  if (composite >= 50)    return { bg: '#C68A1A', border: '#9a6b14' }
   return                         { bg: '#C0392B', border: '#922b21' }
 }
 
 function tierLabel(composite: number | null) {
   if (composite === null) return null
-  if (composite >= 8) return 'Must Try'
-  if (composite >= 6) return 'Solid'
-  if (composite >= 4) return 'Mid'
+  if (composite >= 90) return 'Must Try'
+  if (composite >= 75) return 'Solid'
+  if (composite >= 50) return 'Mid'
   return 'Skip It'
 }
 
