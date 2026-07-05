@@ -84,12 +84,14 @@ export default async function HomePage({ searchParams }: PageProps) {
                 const profile = profileById[review.user_id]
                 if (!location) return null
                 return (
-                  <Link
+                  <div
                     key={review.id}
-                    href={`/locations/${review.location_id}`}
-                    className="feed-item card-hover flex flex-col justify-between aspect-square p-4 bg-card border border-border rounded-xl hover:border-border-strong group"
+                    className="feed-item card-hover relative flex flex-col justify-between aspect-square p-4 bg-card border border-border rounded-xl hover:border-border-strong group"
                   >
-                    <div className="flex items-start justify-between gap-1">
+                    {/* Full-card link to location — sits behind other content */}
+                    <Link href={`/locations/${review.location_id}`} className="absolute inset-0 rounded-xl" aria-label={location.location_name} />
+
+                    <div className="relative flex items-start justify-between gap-1 pointer-events-none">
                       {location.tier
                         ? <ScoreBadge tier={location.tier} size="sm" />
                         : <span />
@@ -99,24 +101,23 @@ export default async function HomePage({ searchParams }: PageProps) {
                       </span>
                     </div>
 
-                    <div className="min-w-0 mt-auto">
-                      <p className="font-medium text-text text-sm leading-snug group-hover:text-accent transition-colors line-clamp-2">
+                    <div className="relative min-w-0 mt-auto">
+                      <p className="font-medium text-text text-sm leading-snug group-hover:text-accent transition-colors line-clamp-2 pointer-events-none">
                         {location.location_name}
                       </p>
                       {profile?.display_name ? (
                         <Link
                           href={`/profile/${review.user_id}`}
-                          className="text-xs text-text-muted mt-1 truncate block hover:text-accent transition-colors"
-                          onClick={(e) => e.stopPropagation()}
+                          className="relative text-xs text-text-muted mt-1 truncate block hover:text-accent transition-colors z-10"
                         >
                           {profile.display_name}
                         </Link>
                       ) : (
-                        <p className="text-xs text-text-muted mt-1 truncate">{location.location_city}</p>
+                        <p className="text-xs text-text-muted mt-1 truncate pointer-events-none">{location.location_city}</p>
                       )}
-                      <RelativeTime date={review.created_at} className="text-xs text-text-muted/70" />
+                      <RelativeTime date={review.created_at} className="text-xs text-text-muted/70 pointer-events-none" />
                     </div>
-                  </Link>
+                  </div>
                 )
               })}
             </div>
