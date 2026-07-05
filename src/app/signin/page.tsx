@@ -74,7 +74,7 @@ export default function SignInPage() {
               )}
               {error && <p className="text-sm text-red-600">{error}</p>}
               <button type="submit" disabled={loading}
-                className="w-full py-2.5 px-4 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition disabled:opacity-60 disabled:cursor-not-allowed">
+                className="btn w-full py-2.5 px-4 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition disabled:opacity-60 disabled:cursor-not-allowed">
                 {loading ? 'Signing in…' : mode === 'magic' ? 'Send magic link' : 'Sign in'}
               </button>
             </form>

@@ -32,7 +32,7 @@ export default async function Header() {
                 Profile
               </Link>
             ) : (
-              <Link href="/signin" className="px-3 py-1.5 text-sm font-medium bg-accent text-white rounded-md hover:bg-accent-hover transition-colors">
+              <Link href="/signin" className="btn px-3 py-1.5 text-sm font-medium bg-accent text-white rounded-md hover:bg-accent-hover transition-colors">
                 Sign in
               </Link>
             )}

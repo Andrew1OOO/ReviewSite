@@ -1,5 +1,78 @@
 @import "tailwindcss";
 
+/* ─────────────────────────────────────────
+   Keyframes
+───────────────────────────────────────── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes bar-grow {
+  from { width: 0%; }
+}
+
+/* ─────────────────────────────────────────
+   Page-entry — every <main> fades up
+───────────────────────────────────────── */
+main {
+  animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ─────────────────────────────────────────
+   Feed / Rankings list items — stagger
+───────────────────────────────────────── */
+.feed-item {
+  animation: fade-up 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.feed-item:nth-child(1)  { animation-delay: 0.04s; }
+.feed-item:nth-child(2)  { animation-delay: 0.08s; }
+.feed-item:nth-child(3)  { animation-delay: 0.12s; }
+.feed-item:nth-child(4)  { animation-delay: 0.16s; }
+.feed-item:nth-child(5)  { animation-delay: 0.20s; }
+.feed-item:nth-child(6)  { animation-delay: 0.24s; }
+.feed-item:nth-child(7)  { animation-delay: 0.28s; }
+.feed-item:nth-child(8)  { animation-delay: 0.30s; }
+.feed-item:nth-child(n+9){ animation-delay: 0.32s; }
+
+/* ─────────────────────────────────────────
+   Cards — hover lift + glow
+───────────────────────────────────────── */
+.card-hover {
+  transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 0.18s ease;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px -4px color-mix(in srgb, var(--text) 10%, transparent);
+}
+
+/* ─────────────────────────────────────────
+   Buttons — press-down feel
+───────────────────────────────────────── */
+.btn {
+  transition: transform 0.12s ease, background-color 0.15s ease, opacity 0.15s ease;
+}
+.btn:active {
+  transform: scale(0.97);
+}
+
+/* ─────────────────────────────────────────
+   Lightbox backdrop fade
+───────────────────────────────────────── */
+dialog[open] {
+  animation: fade-in 0.2s ease both;
+}
+dialog[open]::backdrop {
+  animation: fade-in 0.2s ease both;
+}
+
 /* ── Light mode ── */
 :root,
 [data-theme="light"] {
@@ -78,10 +151,12 @@ body {
   line-height: 1;
 }
 
-/* Axis bar */
+/* Axis bar — animates from 0 on mount */
 .axis-bar {
   background: var(--accent);
-  opacity: 0.8;
+  opacity: 0.85;
+  animation: bar-grow 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: 0.15s;
 }
 
 input[type="range"] {

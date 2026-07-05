@@ -49,7 +49,7 @@ export default async function HomePage() {
             <p className="text-text-muted text-sm">What your group has been eating.</p>
           </div>
           {user && (
-            <Link href="/submit" className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition">
+            <Link href="/submit" className="btn px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition">
               + Review
             </Link>
           )}
@@ -70,7 +70,7 @@ export default async function HomePage() {
                 <Link
                   key={review.id}
                   href={`/locations/${review.location_id}`}
-                  className="flex items-center gap-4 p-4 bg-card border border-border rounded-xl hover:border-border-strong transition-colors group"
+                  className="feed-item card-hover flex items-center gap-4 p-4 bg-card border border-border rounded-xl hover:border-border-strong group"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-text text-sm truncate group-hover:text-accent transition-colors">

@@ -37,7 +37,7 @@ export default function ReviewCard({
     .filter((a) => a.note && a.note.trim())
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5">
+    <div className="card-hover bg-card border border-border rounded-xl p-5">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
         <div>

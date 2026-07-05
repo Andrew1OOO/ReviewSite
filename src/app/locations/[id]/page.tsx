@@ -107,7 +107,7 @@ export default async function LocationPage({ params }: PageProps) {
         {user && (
           <div className="mb-8">
             <Link href={`/submit?locationId=${id}`}
-              className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition">
+              className="btn px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition">
               Review this spot
             </Link>
           </div>
@@ -146,7 +146,7 @@ export default async function LocationPage({ params }: PageProps) {
           {comments.length > 0 && (
             <div className="space-y-3 mb-6">
               {comments.map((comment) => (
-                <div key={comment.id} className="bg-card border border-border rounded-lg p-4">
+                <div key={comment.id} className="card-hover bg-card border border-border rounded-lg p-4">
                   <p className="text-sm text-text leading-relaxed">{comment.body}</p>
                   <p className="text-xs text-text-muted mt-2">
                     {new Date(comment.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}

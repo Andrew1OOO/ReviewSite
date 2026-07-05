@@ -37,7 +37,7 @@ export default async function RankingsPage() {
               <Link
                 key={loc.id}
                 href={`/locations/${loc.id}`}
-                className="flex items-center gap-4 p-4 bg-card border border-border rounded-xl hover:border-border-strong transition-colors group"
+                className="feed-item card-hover flex items-center gap-4 p-4 bg-card border border-border rounded-xl hover:border-border-strong group"
               >
                 <span className="font-serif text-lg text-text-muted w-7 text-center shrink-0 tabular-nums">
                   {i + 1}
