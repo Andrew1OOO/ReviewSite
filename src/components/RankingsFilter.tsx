@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import ScoreBadge from '@/components/ScoreBadge'
 import type { LocationScore } from '@/lib/types'
@@ -8,10 +9,13 @@ import type { LocationScore } from '@/lib/types'
 interface RankingsFilterProps {
   locations: LocationScore[]
   rankOffset: number
+  foodCategories: string[]
+  activeFood: string | null
 }
 
-export default function RankingsFilter({ locations, rankOffset }: RankingsFilterProps) {
+export default function RankingsFilter({ locations, rankOffset, foodCategories, activeFood }: RankingsFilterProps) {
   const [query, setQuery] = useState('')
+  const router = useRouter()
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -23,24 +27,56 @@ export default function RankingsFilter({ locations, rankOffset }: RankingsFilter
     )
   }, [query, locations])
 
+  function handleFoodChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const val = e.target.value
+    router.push(val ? `/rankings?food=${encodeURIComponent(val)}` : '/rankings')
+  }
+
+  const isFiltering = !!query || !!activeFood
+
   return (
     <>
-      <div className="mb-5">
+      <div className="flex flex-wrap gap-3 mb-5">
+        {/* Food category dropdown */}
+        {foodCategories.length > 0 && (
+          <select
+            value={activeFood ?? ''}
+            onChange={handleFoodChange}
+            className="px-3 py-2 rounded-lg border border-border bg-card text-text text-sm focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition"
+          >
+            <option value="">All foods</option>
+            {foodCategories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+        )}
+
+        {/* Name / city search */}
         <input
           type="search"
           placeholder="Filter by name or city…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          className="w-full sm:w-72 px-3 py-2 rounded-lg border border-border bg-card text-text text-sm placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition"
+          className="flex-1 min-w-[180px] sm:max-w-64 px-3 py-2 rounded-lg border border-border bg-card text-text text-sm placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition"
         />
+
+        {/* Clear filters */}
+        {isFiltering && (
+          <Link
+            href="/rankings"
+            onClick={() => setQuery('')}
+            className="px-3 py-2 rounded-lg border border-border text-sm text-text-muted hover:text-text hover:border-border-strong transition"
+          >
+            Clear
+          </Link>
+        )}
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-text-muted py-8 text-center">No spots match &ldquo;{query}&rdquo;.</p>
+        <p className="text-sm text-text-muted py-8 text-center">No spots match your filters.</p>
       ) : (
         <div className="space-y-2">
           {filtered.map((loc) => {
-            // When filtering, use original rank from the full list
             const globalIndex = locations.indexOf(loc)
             const rank = query ? null : rankOffset + globalIndex + 1
             return (
