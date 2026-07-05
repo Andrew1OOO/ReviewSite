@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/server'
 import Container from '@/components/Container'
 import ScoreBadge from '@/components/ScoreBadge'
@@ -20,11 +21,8 @@ export default async function HomePage({ searchParams }: PageProps) {
 
   const supabase = await createClient()
 
-  // Count total reviews for pagination
   const [{ count }, { data: reviewsData }, { data: { user } }] = await Promise.all([
-    supabase
-      .from('reviews')
-      .select('id', { count: 'exact', head: true }),
+    supabase.from('reviews').select('id', { count: 'exact', head: true }),
     supabase
       .from('reviews')
       .select('id, location_id, user_id, composite, created_at')
@@ -37,15 +35,20 @@ export default async function HomePage({ searchParams }: PageProps) {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
   const reviews = (reviewsData ?? []) as Pick<Review, 'id' | 'location_id' | 'user_id' | 'composite' | 'created_at'>[]
 
+  const reviewIds = reviews.map((r) => r.id)
   const locationIds = [...new Set(reviews.map((r) => r.location_id))]
   const userIds = [...new Set(reviews.map((r) => r.user_id))]
 
-  const [{ data: locationsData }, { data: profilesData }] = await Promise.all([
+  const [{ data: locationsData }, { data: profilesData }, { data: photosData }] = await Promise.all([
     locationIds.length > 0
       ? supabase.from('location_scores').select('*').in('id', locationIds)
       : Promise.resolve({ data: [] }),
     userIds.length > 0
       ? supabase.from('profiles').select('id, display_name, food_category').in('id', userIds)
+      : Promise.resolve({ data: [] }),
+    // Fetch only the first photo (order=0) for each review on this page
+    reviewIds.length > 0
+      ? supabase.from('review_photos').select('review_id, photo_url').in('review_id', reviewIds).eq('order', 0)
       : Promise.resolve({ data: [] }),
   ])
 
@@ -54,6 +57,9 @@ export default async function HomePage({ searchParams }: PageProps) {
   )
   const profileById = Object.fromEntries(
     (profilesData ?? []).map((p: Pick<Profile, 'id' | 'display_name' | 'food_category'>) => [p.id, p])
+  )
+  const photoByReview = Object.fromEntries(
+    (photosData ?? []).map((p: { review_id: string; photo_url: string }) => [p.review_id, p.photo_url])
   )
 
   return (
@@ -82,40 +88,59 @@ export default async function HomePage({ searchParams }: PageProps) {
               {reviews.map((review) => {
                 const location = locationById[review.location_id] as LocationScore | undefined
                 const profile = profileById[review.user_id]
+                const photoUrl = photoByReview[review.id] ?? null
                 if (!location) return null
                 return (
                   <div
                     key={review.id}
-                    className="feed-item card-hover relative flex flex-col justify-between aspect-square p-4 bg-card border border-border rounded-xl hover:border-border-strong group"
+                    className="feed-item card-hover relative flex flex-col justify-between aspect-square rounded-xl overflow-hidden border border-border hover:border-border-strong group"
                   >
-                    {/* Full-card link to location — sits behind other content */}
-                    <Link href={`/locations/${review.location_id}`} className="absolute inset-0 rounded-xl" aria-label={location.location_name} />
+                    {/* Background photo */}
+                    {photoUrl ? (
+                      <>
+                        <Image
+                          src={photoUrl}
+                          alt={location.location_name}
+                          fill
+                          className="object-cover transition-transform duration-500 group-hover:scale-105"
+                          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                        />
+                        {/* Dark gradient so text is always legible */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/30" />
+                      </>
+                    ) : (
+                      <div className="absolute inset-0 bg-card" />
+                    )}
 
-                    <div className="relative flex items-start justify-between gap-1 pointer-events-none">
-                      {location.tier
-                        ? <ScoreBadge tier={location.tier} size="sm" />
-                        : <span />
-                      }
-                      <span className="score-display text-2xl leading-none shrink-0">
+                    {/* Full-card link */}
+                    <Link href={`/locations/${review.location_id}`} className="absolute inset-0 rounded-xl z-10" aria-label={location.location_name} />
+
+                    {/* Top row: tier badge + score */}
+                    <div className={`relative z-20 flex items-start justify-between gap-1 p-4 pointer-events-none ${photoUrl ? 'text-white' : ''}`}>
+                      {location.tier ? <ScoreBadge tier={location.tier} size="sm" /> : <span />}
+                      <span className={`score-display text-2xl leading-none shrink-0 ${photoUrl ? '!text-white' : ''}`}>
                         {review.composite !== null ? review.composite.toFixed(1) : '—'}
                       </span>
                     </div>
 
-                    <div className="relative min-w-0 mt-auto">
-                      <p className="font-medium text-text text-sm leading-snug group-hover:text-accent transition-colors line-clamp-2 pointer-events-none">
+                    {/* Bottom row: name + reviewer + time */}
+                    <div className="relative z-20 min-w-0 p-4 pt-0">
+                      <p className={`font-medium text-sm leading-snug line-clamp-2 pointer-events-none ${photoUrl ? 'text-white' : 'text-text group-hover:text-accent transition-colors'}`}>
                         {location.location_name}
                       </p>
                       {profile?.display_name ? (
                         <Link
                           href={`/profile/${review.user_id}`}
-                          className="relative text-xs text-text-muted mt-1 truncate block hover:text-accent transition-colors z-10"
+                          className={`relative text-xs mt-1 truncate block transition-colors z-30 ${photoUrl ? 'text-white/70 hover:text-white' : 'text-text-muted hover:text-accent'}`}
                         >
                           {profile.display_name}
                         </Link>
                       ) : (
-                        <p className="text-xs text-text-muted mt-1 truncate pointer-events-none">{location.location_city}</p>
+                        <p className={`text-xs mt-1 truncate pointer-events-none ${photoUrl ? 'text-white/70' : 'text-text-muted'}`}>
+                          {location.location_city}
+                        </p>
                       )}
-                      <RelativeTime date={review.created_at} className="text-xs text-text-muted/70 pointer-events-none" />
+                      <RelativeTime date={review.created_at} className={`text-xs pointer-events-none ${photoUrl ? 'text-white/50' : 'text-text-muted/70'}`} />
                     </div>
                   </div>
                 )
