@@ -6,6 +6,8 @@ import { signOut } from '@/lib/actions/auth'
 import Container from '@/components/Container'
 import ProfileForm from '@/components/ProfileForm'
 import AvatarUpload from '@/components/AvatarUpload'
+import ReviewMap from '@/components/ReviewMap'
+import type { ReviewMapPin } from '@/components/ReviewMap'
 import type { Review, Profile, RubricAxis } from '@/lib/types'
 
 export default async function ProfilePage() {
@@ -25,12 +27,31 @@ export default async function ProfilePage() {
 
   const locationIds = [...new Set(reviews.map((r) => r.location_id))]
   const { data: locationsData } = locationIds.length > 0
-    ? await supabase.from('locations').select('id, name').in('id', locationIds)
+    ? await supabase.from('locations').select('id, name, lat, lng').in('id', locationIds)
     : { data: [] }
 
-  const dishNameById = Object.fromEntries(
-    (locationsData ?? []).map((l: { id: string; name: string }) => [l.id, l.name])
-  )
+  type LocationRow = { id: string; name: string; lat: number | null; lng: number | null }
+  const locations = (locationsData ?? []) as LocationRow[]
+
+  const dishNameById = Object.fromEntries(locations.map((l) => [l.id, l.name]))
+  const locationById = Object.fromEntries(locations.map((l) => [l.id, l]))
+
+  // Build map pins — only locations that have coordinates
+  const mapPins: ReviewMapPin[] = reviews
+    .map((r) => {
+      const loc = locationById[r.location_id]
+      if (!loc || loc.lat === null || loc.lng === null) return null
+      return {
+        locationId: r.location_id,
+        name: loc.name,
+        lat: loc.lat,
+        lng: loc.lng,
+        composite: r.composite ?? null,
+      }
+    })
+    .filter((p): p is ReviewMapPin => p !== null)
+    // dedupe by locationId (keep first / highest review)
+    .filter((p, i, arr) => arr.findIndex((q) => q.locationId === p.locationId) === i)
 
   const displayName = profile?.display_name ?? user.email?.split('@')[0] ?? 'Anonymous'
 
@@ -94,6 +115,14 @@ export default async function ProfilePage() {
             </div>
           )}
         </section>
+
+        {/* Map */}
+        {reviews.length > 0 && (
+          <section>
+            <h2 className="font-serif text-xl mb-4">Your map</h2>
+            <ReviewMap pins={mapPins} />
+          </section>
+        )}
 
         {/* Reviews */}
         <section>
