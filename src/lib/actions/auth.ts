@@ -1,5 +1,6 @@
 'use server'
 
+import { headers } from 'next/headers'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
@@ -9,10 +10,15 @@ export async function signInWithEmail(email: string) {
 
   if (!email) return { error: 'Email is required.' }
 
+  const headersList = await headers()
+  const host = headersList.get('x-forwarded-host') ?? headersList.get('host') ?? 'localhost:3000'
+  const proto = headersList.get('x-forwarded-proto') ?? 'http'
+  const origin = `${proto}://${host}`
+
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `http://localhost:3000/auth/callback`,
+      emailRedirectTo: `${origin}/auth/callback`,
     },
   })
 
