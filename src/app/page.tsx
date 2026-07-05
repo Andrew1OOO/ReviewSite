@@ -39,16 +39,16 @@ export default async function HomePage({ searchParams }: PageProps) {
   const locationIds = [...new Set(reviews.map((r) => r.location_id))]
   const userIds = [...new Set(reviews.map((r) => r.user_id))]
 
-  const [{ data: locationsData }, { data: profilesData }, { data: photosData }] = await Promise.all([
+  const [{ data: locationsData }, { data: profilesData }, { data: bodiesData }] = await Promise.all([
     locationIds.length > 0
       ? supabase.from('location_scores').select('*').in('id', locationIds)
       : Promise.resolve({ data: [] }),
     userIds.length > 0
       ? supabase.from('profiles').select('id, display_name, food_category').in('id', userIds)
       : Promise.resolve({ data: [] }),
-    // Fetch only the first photo (order=0) for each review on this page
+    // Fetch body JSONB to extract the first photo URL from each review
     reviewIds.length > 0
-      ? supabase.from('review_photos').select('review_id, photo_url').in('review_id', reviewIds).eq('order', 0)
+      ? supabase.from('reviews').select('id, body').in('id', reviewIds)
       : Promise.resolve({ data: [] }),
   ])
 
@@ -58,8 +58,15 @@ export default async function HomePage({ searchParams }: PageProps) {
   const profileById = Object.fromEntries(
     (profilesData ?? []).map((p: Pick<Profile, 'id' | 'display_name' | 'food_category'>) => [p.id, p])
   )
+  // Extract first photo URL from each review's body blocks
   const photoByReview = Object.fromEntries(
-    (photosData ?? []).map((p: { review_id: string; photo_url: string }) => [p.review_id, p.photo_url])
+    (bodiesData ?? [])
+      .map((r: { id: string; body: unknown }) => {
+        const blocks = Array.isArray(r.body) ? r.body as Array<Record<string, unknown>> : []
+        const first = blocks.find((b) => b.type === 'photo' && typeof b.url === 'string')
+        return [r.id, first ? (first.url as string) : null]
+      })
+      .filter(([, url]) => url !== null)
   )
 
   return (
