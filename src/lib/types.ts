@@ -43,6 +43,7 @@ export interface Database {
           display_name: string
           food_category: string | null
           onboarding_done: boolean
+          avatar_url: string | null
           created_at: string
         }
         Insert: {
@@ -50,6 +51,7 @@ export interface Database {
           display_name?: string
           food_category?: string | null
           onboarding_done?: boolean
+          avatar_url?: string | null
           created_at?: string
         }
         Update: Partial<Omit<Database['public']['Tables']['profiles']['Insert'], 'id'>>

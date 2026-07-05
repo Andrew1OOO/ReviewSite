@@ -5,6 +5,7 @@ import { updateProfile } from '@/lib/actions/profile'
 import { signOut } from '@/lib/actions/auth'
 import Container from '@/components/Container'
 import ProfileForm from '@/components/ProfileForm'
+import AvatarUpload from '@/components/AvatarUpload'
 import type { Review, Profile, RubricAxis } from '@/lib/types'
 
 export default async function ProfilePage() {
@@ -42,9 +43,15 @@ export default async function ProfilePage() {
           <h1 className="font-serif text-4xl mb-1">Profile</h1>
           <p className="text-sm text-text-muted mb-8">{user.email}</p>
 
-          <div className="bg-card border border-border rounded-xl p-6">
-            <h2 className="font-serif text-xl mb-4">Display name</h2>
-            <ProfileForm displayName={displayName} action={updateProfile} />
+          <div className="bg-card border border-border rounded-xl p-6 space-y-6">
+            <div>
+              <h2 className="font-serif text-xl mb-4">Photo</h2>
+              <AvatarUpload currentUrl={profile?.avatar_url ?? null} displayName={displayName} />
+            </div>
+            <div className="border-t border-border pt-6">
+              <h2 className="font-serif text-xl mb-4">Display name</h2>
+              <ProfileForm displayName={displayName} action={updateProfile} />
+            </div>
           </div>
         </section>
 
