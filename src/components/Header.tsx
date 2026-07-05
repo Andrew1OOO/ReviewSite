@@ -32,6 +32,9 @@ export default async function Header() {
           <Link href="/rankings" className="px-3 py-1.5 text-sm text-text-muted hover:text-text transition-colors rounded-md">
             Rankings
           </Link>
+          <Link href="/reviewers" className="px-3 py-1.5 text-sm text-text-muted hover:text-text transition-colors rounded-md">
+            Reviewers
+          </Link>
           {user && (
             <Link href="/submit" className="px-3 py-1.5 text-sm font-medium text-accent hover:text-accent-hover transition-colors rounded-md">
               + Submit

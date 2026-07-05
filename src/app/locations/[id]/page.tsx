@@ -52,7 +52,7 @@ export default async function LocationPage({ params }: PageProps) {
         ? supabase.from('review_photos').select('*').in('review_id', reviewIds).order('order')
         : Promise.resolve({ data: [] }),
       allProfileIds.length > 0
-        ? supabase.from('profiles').select('id, display_name, food_category').in('id', allProfileIds)
+        ? supabase.from('profiles').select('id, display_name, food_category, avatar_url').in('id', allProfileIds)
         : Promise.resolve({ data: [] }),
       reviewIds.length > 0
         ? supabase.from('review_scores').select('*').in('review_id', reviewIds)
@@ -63,7 +63,7 @@ export default async function LocationPage({ params }: PageProps) {
     ])
 
   const photos = (photosData ?? []) as ReviewPhoto[]
-  const profiles = (profilesData ?? []) as Pick<Profile, 'id' | 'display_name' | 'food_category'>[]
+  const profiles = (profilesData ?? []) as Pick<Profile, 'id' | 'display_name' | 'food_category' | 'avatar_url'>[]
   const allScores = (scoresData ?? []) as ReviewScore[]
   const allAxes = (axesData ?? []) as RubricAxis[]
 
@@ -181,6 +181,7 @@ export default async function LocationPage({ params }: PageProps) {
                     dishId={id}
                     reviewerName={profile?.display_name ?? 'Anonymous'}
                     reviewerUserId={review.user_id}
+                    reviewerAvatarUrl={profile?.avatar_url ?? null}
                     foodCategory={profile?.food_category ?? null}
                   />
                 )

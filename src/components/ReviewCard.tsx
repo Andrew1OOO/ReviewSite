@@ -17,6 +17,7 @@ interface ReviewCardProps {
   dishId: string
   reviewerName: string
   reviewerUserId: string
+  reviewerAvatarUrl: string | null
   foodCategory: string | null
 }
 
@@ -29,6 +30,7 @@ export default function ReviewCard({
   dishId,
   reviewerName,
   reviewerUserId,
+  reviewerAvatarUrl,
   foodCategory,
 }: ReviewCardProps) {
   const [lightbox, setLightbox] = useState<{ src: string; alt: string } | null>(null)
@@ -42,19 +44,30 @@ export default function ReviewCard({
     <div className="card-hover bg-card border border-border rounded-xl p-5">
       {/* Header */}
       <div className="flex items-start justify-between mb-3">
-        <div>
-          <span className="score-display text-3xl">{review.composite?.toFixed(1) ?? '—'}</span>
-          <p className="text-xs text-text-muted mt-0.5">
-            <Link
-              href={`/profile/${reviewerUserId}`}
-              className="font-medium text-text hover:text-accent transition-colors"
-              onClick={(e) => e.stopPropagation()}
-            >
+        <Link href={`/profile/${reviewerUserId}`} className="flex items-center gap-3 group/reviewer min-w-0">
+          {/* Avatar */}
+          <div className="w-9 h-9 rounded-full overflow-hidden bg-accent-soft border border-border shrink-0 flex items-center justify-center">
+            {reviewerAvatarUrl ? (
+              <Image
+                src={reviewerAvatarUrl}
+                alt={reviewerName}
+                width={36}
+                height={36}
+                className="object-cover w-full h-full"
+              />
+            ) : (
+              <span className="text-xs font-medium text-accent select-none">
+                {reviewerName.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2)}
+              </span>
+            )}
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-text group-hover/reviewer:text-accent transition-colors truncate">
               {reviewerName}
-            </Link>
-            {foodCategory && <span> · {foodCategory}</span>}
-          </p>
-        </div>
+            </p>
+            {foodCategory && <p className="text-xs text-text-muted truncate">{foodCategory}</p>}
+          </div>
+        </Link>
         <div className="text-xs text-text-muted text-right">
           <p>{new Date(review.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
           {isOwner && (
