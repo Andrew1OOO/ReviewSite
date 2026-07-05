@@ -78,7 +78,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           </div>
         ) : (
           <>
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {reviews.map((review) => {
                 const location = locationById[review.location_id] as LocationScore | undefined
                 const profile = profileById[review.user_id]
@@ -87,24 +87,26 @@ export default async function HomePage({ searchParams }: PageProps) {
                   <Link
                     key={review.id}
                     href={`/locations/${review.location_id}`}
-                    className="feed-item card-hover flex items-center gap-4 p-4 bg-card border border-border rounded-xl hover:border-border-strong group"
+                    className="feed-item card-hover flex flex-col justify-between aspect-square p-4 bg-card border border-border rounded-xl hover:border-border-strong group"
                   >
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-text text-sm truncate group-hover:text-accent transition-colors">
-                        {location.location_name}
-                      </p>
-                      <p className="text-xs text-text-muted truncate">
-                        {location.location_city}
-                        {profile?.food_category && <span> · {profile.food_category}</span>}
-                        {profile?.display_name && <span> · {profile.display_name}</span>}
-                        {' · '}<RelativeTime date={review.created_at} />
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3 shrink-0">
-                      {location.tier && <ScoreBadge tier={location.tier} size="sm" />}
-                      <span className="score-display text-2xl">
+                    <div className="flex items-start justify-between gap-1">
+                      {location.tier
+                        ? <ScoreBadge tier={location.tier} size="sm" />
+                        : <span />
+                      }
+                      <span className="score-display text-2xl leading-none shrink-0">
                         {review.composite !== null ? review.composite.toFixed(1) : '—'}
                       </span>
+                    </div>
+
+                    <div className="min-w-0 mt-auto">
+                      <p className="font-medium text-text text-sm leading-snug group-hover:text-accent transition-colors line-clamp-2">
+                        {location.location_name}
+                      </p>
+                      <p className="text-xs text-text-muted mt-1 truncate">
+                        {profile?.display_name ?? location.location_city}
+                      </p>
+                      <RelativeTime date={review.created_at} className="text-xs text-text-muted/70" />
                     </div>
                   </Link>
                 )
